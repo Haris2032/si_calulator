@@ -1,6 +1,6 @@
 # si_calulator
 
-a simple SI calculator
+A simple SI calculator created using Flutter.
 
 ## Getting Started
 
