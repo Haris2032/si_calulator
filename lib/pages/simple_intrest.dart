@@ -60,7 +60,7 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("S.I Calculator"),
+        title: Text("EasyCal"),
       ),
       body: Form(
         key: _formkey,
@@ -188,7 +188,7 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
 
     double sI = amount + (amount * roi * (period / divisor)) / 100;
     String res =
-        'After $period ${_currentItemselected.toLowerCase()}, Your investment will be worth ${sI.roundToDouble()} ';
+        'After $period ${_currentItemselected.toLowerCase()}, your investment will be worth ${sI.roundToDouble()} ';
     return res;
   }
 

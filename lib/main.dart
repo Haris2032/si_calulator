@@ -4,7 +4,7 @@ import 'package:si_calulator/pages/simple_intrest.dart';
 void main() {
   runApp(
     MaterialApp(
-      title: "simple Interest Calculator",
+      title: "EasyCal",
       home: SimpleIntrest(),
       theme: ThemeData(
         primaryColor: Colors.red[400],
