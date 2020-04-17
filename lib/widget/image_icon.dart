@@ -9,12 +9,11 @@ class SimpleImage extends StatelessWidget {
     AssetImage assetImage = AssetImage(Data.image);
     Image image = Image(
       image: assetImage,
-      width: 130.0,
-      height: 130.0,
+      width: 180.0,
+      height: 150.0,
     );
     return Container(
       child: image,
-      margin: EdgeInsets.all(10.0),
     );
   }
 }

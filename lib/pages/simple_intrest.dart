@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:si_calulator/data/data.dart';
 import 'package:si_calulator/widget/image_icon.dart';
 import 'package:si_calulator/widget/input_field.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 
 class SimpleIntrest extends StatefulWidget {
   @override
@@ -16,10 +17,37 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
   final _minpadding = 5.0;
   var _currentItemselected = '';
 
+  static final MobileAdTargetingInfo targetingInfo = new MobileAdTargetingInfo(
+      testDevices: <String>[],
+      keywords: <String>['mobile', 'laptop', 'menswear']);
+
+  BannerAd _bannerAd;
+
+  BannerAd createBannerAd() {
+    return new BannerAd(
+      adUnitId: BannerAd.testAdUnitId,
+      size: AdSize.banner,
+      targetingInfo: targetingInfo,
+      listener: (event) {
+        print("Banner clicked");
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
+    FirebaseAdMob.instance.initialize(appId: FirebaseAdMob.testAppId);
+    _bannerAd = createBannerAd()
+      ..load()
+      ..show();
     _currentItemselected = Data.periodOfTime[0];
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
   }
 
   TextEditingController amountController = TextEditingController();
@@ -37,38 +65,35 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
       body: Form(
         key: _formkey,
         autovalidate: _validate,
-        child: Padding(
-          padding: EdgeInsets.all(_minpadding * 2),
+        child: Container(
+          height: MediaQuery.of(context).size.height * 0.8,
           child: ListView(
             children: <Widget>[
               SimpleImage(),
               Padding(
-                  padding:
-                      EdgeInsets.only(top: _minpadding, bottom: _minpadding),
+                  padding: EdgeInsets.all(8.0),
                   child: InputField(
                       textController: amountController,
-                      validator: aValidate,
+                      validator: validate,
                       label: "Amount",
                       hint: "Enter the amount eg.100")),
               Padding(
-                  padding:
-                      EdgeInsets.only(top: _minpadding, bottom: _minpadding),
+                  padding: EdgeInsets.all(8.0),
                   child: InputField(
                       textController: roiController,
-                      validator: rValidate,
+                      validator: validate,
                       label: "Rate of interest",
                       hint: "Enter the rate of interest eg.5%")),
               Padding(
-                  padding:
-                      EdgeInsets.only(top: _minpadding, bottom: _minpadding),
+                  padding: EdgeInsets.all(8.0),
                   child: Row(
                     children: <Widget>[
                       Expanded(
                           child: InputField(
                               textController: yearController,
-                              validator: yValidate,
-                              label: "Years",
-                              hint: "eg. 5%")),
+                              validator: validate,
+                              label: _currentItemselected,
+                              hint: "eg. 2 $_currentItemselected")),
                       Container(
                         width: _minpadding * 5,
                       ),
@@ -151,11 +176,19 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
   String _calculateTotal() {
     double amount = double.parse(amountController.text);
     double roi = double.parse(roiController.text);
-    double year = double.parse(yearController.text);
+    double period = double.parse(yearController.text);
+    double divisor;
+    if (_currentItemselected == "Month") {
+      divisor = 12;
+    } else if (_currentItemselected == "Days") {
+      divisor = 365;
+    } else {
+      divisor = 1;
+    }
 
-    double sI = amount + (amount * roi * year) / 100;
+    double sI = amount + (amount * roi * (period / divisor)) / 100;
     String res =
-        'After $year years, Your investment will be worth $sI $_currentItemselected';
+        'After $period ${_currentItemselected.toLowerCase()}, Your investment will be worth ${sI.roundToDouble()} ';
     return res;
   }
 
@@ -170,31 +203,11 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
     });
   }
 
-  String aValidate(String value) {
+  String validate(String value) {
     String pattern = r'(^[0-9]*$)';
     RegExp regExp = RegExp(pattern);
     if (value.isEmpty) {
-      return 'Please enter the amount';
-    } else if (!regExp.hasMatch(value)) {
-      return 'Enter valid Input';
-    }
-  }
-
-  String rValidate(String value) {
-    String pattern = r'(^[0-9]*$)';
-    RegExp regExp = RegExp(pattern);
-    if (value.isEmpty) {
-      return 'Please enter the Intrest';
-    } else if (!regExp.hasMatch(value)) {
-      return 'Enter valid Input';
-    }
-  }
-
-  String yValidate(String value) {
-    String pattern = r'(^[0-9]*$)';
-    RegExp regExp = RegExp(pattern);
-    if (value.isEmpty) {
-      return 'Please enter the No.of Year';
+      return 'Please enter a value';
     } else if (!regExp.hasMatch(value)) {
       return 'Enter valid Input';
     }
