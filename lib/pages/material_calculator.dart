@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../data/data.dart';
-import 'package:calc_core/calc.dart';
+import 'package:math_expressions/math_expressions.dart';
+import 'dart:io';
 
 class MaterialCalculator extends StatefulWidget {
   @override
@@ -8,116 +9,53 @@ class MaterialCalculator extends StatefulWidget {
 }
 
 class _MaterialCalculatorState extends State<MaterialCalculator> {
-  var valueEntered = '', answer = '';
-
-  var numList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-
-  Calculator calc = Calculator();
-
+  String equation = '', answer = '', expression = '';
   var themeData;
-  bool themeChange = false;
-
-  addDigit(int digit) {
-    setState(() {
-      calc.addDigit(digit);
-      valueEntered = calc.text;
-    });
-  }
-
-  addPoint() {
-    setState(() {
-      calc.addPoint();
-      valueEntered = calc.text;
-    });
-  }
-
-  addSum() {
-    setState(() {
-      calc.setAdditionOperator();
-      valueEntered = calc.text;
-    });
-  }
-
-  addSub() {
-    setState(() {
-      calc.setSubtranctionOperator();
-      valueEntered = calc.text;
-    });
-  }
-
-  addProduct() {
-    setState(() {
-      calc.setProductOperator();
-      valueEntered = calc.text;
-    });
-  }
-
-  addDiv() {
-    setState(() {
-      calc.setDivisinOperator();
-      valueEntered = calc.text;
-    });
-  }
-
-  backspace() {
-    setState(() {
-      calc.backspace();
-      valueEntered = calc.text;
-    });
-  }
-
-  clear() {
-    setState(() {
-      calc.clear();
-      valueEntered = calc.text;
-    });
-  }
-
-  operate() {
-    setState(() {
-      calc.operate();
-      answer = calc.text;
-    });
-  }
+  bool themeChange;
 
   void onButtonPressed(value) {
-    if (value == 'C') {
-      setState(() {
-        answer = '';
-        clear();
-      });
-    } else if (value == 'backSpace') {
-      backspace();
-    } else if (value == '=') {
-      operate();
-    } else if (value == '.') {
-      addPoint();
-    } else if (numList.contains(value)) {
-      addDigit(value);
-    } else if (value == 'themeChange') {
+    if (value == 'themeChange') {
       setState(() {
         themeChange ? themeData = new DayTheme() : themeData = new NightTheme();
         themeChange = !themeChange;
       });
-    } else if (value == 'menu') {
-      print("menu");
     } else {
-      switch (value) {
-        case '+':
-          addSum();
-          break;
-        case '-':
-          addSub();
-          break;
-        case 'x':
-          addProduct();
-          break;
-        case '÷':
-          addDiv();
-          break;
-        default:
-          print(value);
-      }
+      setState(() {
+        if (value == 'C') {
+          equation = "";
+          answer = '';
+          expression = '';
+        } else if (value == 'backSpace') {
+          equation = equation.substring(0, equation.length - 1);
+          expression = equation;
+          if (equation == '') {
+            answer = "";
+          }
+        } else if (value == '=') {
+          if (expression != '') {
+            expression = expression.replaceAll("÷", "/");
+            expression = expression.replaceAll("x", "*");
+            try {
+              Parser p = Parser();
+              Expression exp = p.parse(expression);
+              print(exp);
+              ContextModel contextModel = ContextModel();
+              value = exp.evaluate(EvaluationType.REAL, contextModel);
+              value == value.round()
+                  ? answer = value.round().toString()
+                  : answer = value.toString();
+            } catch (e) {
+              print(e);
+              answer = 'ERROR';
+            }
+          }
+        } else if (value == 'menu') {
+          print("menu");
+        } else {
+          equation += value.toString();
+          expression = equation;
+        }
+      });
     }
   }
 
@@ -181,11 +119,11 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
   void initState() {
     super.initState();
     themeData = new DayTheme();
+    themeChange = false;
   }
 
   @override
   void dispose() {
-    themeData = new DayTheme();
     super.dispose();
   }
 
@@ -237,11 +175,15 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                   width: width,
                   child: Align(
                     alignment: Alignment.centerRight,
-                    child: Text(
-                      valueEntered != '' ? valueEntered : '0',
-                      textAlign: TextAlign.left,
-                      textScaleFactor: 1.8,
-                      style: TextStyle(color: themeData.primaryIconColor),
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      reverse: true,
+                      child: Text(
+                        equation != '' ? equation : '0',
+                        textAlign: TextAlign.left,
+                        textScaleFactor: 1.8,
+                        style: TextStyle(color: themeData.primaryIconColor),
+                      ),
                     ),
                   ),
                 ),
@@ -251,10 +193,14 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                     width: width,
                     child: Align(
                       alignment: Alignment.centerRight,
-                      child: Text(
-                        answer != '' ? answer : '0',
-                        textScaleFactor: 3.5,
-                        style: TextStyle(color: themeData.secondaryIconColor),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        reverse: true,
+                        child: Text(
+                          answer != '' ? answer : '0',
+                          textScaleFactor: 3.5,
+                          style: TextStyle(color: themeData.secondaryIconColor),
+                        ),
                       ),
                     ),
                   ),
@@ -277,7 +223,7 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                           secondaryShadowColor: themeData.secondaryShadowColor,
                           buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
-                          child: "+/-",
+                          child: "^",
                           childColor: themeData.secondaryIconColor,
                           primaryShadowColor: themeData.primaryShadowColor,
                           secondaryShadowColor: themeData.secondaryShadowColor,
