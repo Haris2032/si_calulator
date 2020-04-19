@@ -9,10 +9,13 @@ class MaterialCalculator extends StatefulWidget {
 
 class _MaterialCalculatorState extends State<MaterialCalculator> {
   var valueEntered = '', answer = '';
-  Calculator calc = Calculator();
+
   var numList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-  var themeIcon = Icons.wb_sunny;
-  var themeColor = dayColor;
+
+  Calculator calc = Calculator();
+
+  var themeData;
+  bool themeChange = false;
 
   addDigit(int digit) {
     setState(() {
@@ -91,21 +94,13 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
       addPoint();
     } else if (numList.contains(value)) {
       addDigit(value);
-    } else if (value == 'day') {
+    } else if (value == 'themeChange') {
       setState(() {
-        themeIcon = Icons.brightness_2;
-        themeColor = nightColor;
-      });
-    } else if (value == 'night') {
-      setState(() {
-        themeIcon = Icons.wb_sunny;
-        themeColor = dayColor;
+        themeChange ? themeData = new DayTheme() : themeData = new NightTheme();
+        themeChange = !themeChange;
       });
     } else if (value == 'menu') {
-      setState(() {
-        themeIcon = Icons.wb_sunny;
-        themeColor = dayColor;
-      });
+      print("menu");
     } else {
       switch (value) {
         case '+':
@@ -128,24 +123,22 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
 
   Widget materialShadowButton(
       {child,
+      childId,
       childColor,
       buttonBgColor,
       primaryShadowColor,
       secondaryShadowColor,
       height = 70.0,
       width = 70.0}) {
+    if (childId == null) {
+      childId = child;
+    }
     return GestureDetector(
       onTap: () {
-        if (child == Icons.arrow_back) {
-          onButtonPressed("backSpace");
-        } else if (child == Icons.wb_sunny) {
-          onButtonPressed("day");
-        } else if (child == Icons.brightness_2) {
-          onButtonPressed("night");
-        } else if (child == Icons.menu) {
-          onButtonPressed("menu");
-        } else {
+        if (child == childId) {
           onButtonPressed(child);
+        } else {
+          onButtonPressed(childId);
         }
       },
       child: Container(
@@ -185,11 +178,23 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    themeData = new DayTheme();
+  }
+
+  @override
+  void dispose() {
+    themeData = new DayTheme();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      backgroundColor: primaryBgColor,
+      backgroundColor: themeData.primaryBgColor,
       body: Column(
         children: <Widget>[
           Container(
@@ -205,21 +210,24 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                     children: <Widget>[
                       materialShadowButton(
                         child: Icons.menu,
-                        childColor: nightColor,
-                        primaryShadowColor: primaryShadowColor,
-                        secondaryShadowColor: secondaryShadowColor,
-                        buttonBgColor: primaryButtonColor,
+                        childId: 'menu',
+                        childColor: themeData.themeIconColor,
+                        primaryShadowColor: themeData.primaryShadowColor,
+                        secondaryShadowColor: themeData.secondaryShadowColor,
+                        buttonBgColor: themeData.primaryButtonColor,
                         height: 40.0,
                         width: 40.0,
                       ),
                       materialShadowButton(
-                          child: themeIcon,
-                          height: 40.0,
-                          width: 40.0,
-                          childColor: themeColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                        child: themeData.themeIcon,
+                        childId: 'themeChange',
+                        childColor: themeData.themeIconColor,
+                        primaryShadowColor: themeData.primaryShadowColor,
+                        secondaryShadowColor: themeData.secondaryShadowColor,
+                        buttonBgColor: themeData.primaryButtonColor,
+                        height: 40.0,
+                        width: 40.0,
+                      ),
                     ],
                   ),
                 ),
@@ -233,7 +241,7 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                       valueEntered != '' ? valueEntered : '0',
                       textAlign: TextAlign.left,
                       textScaleFactor: 1.8,
-                      style: TextStyle(color: primaryIconColor),
+                      style: TextStyle(color: themeData.primaryIconColor),
                     ),
                   ),
                 ),
@@ -246,7 +254,7 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                       child: Text(
                         answer != '' ? answer : '0',
                         textScaleFactor: 3.5,
-                        style: TextStyle(color: secondaryIconColor),
+                        style: TextStyle(color: themeData.secondaryIconColor),
                       ),
                     ),
                   ),
@@ -264,28 +272,28 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                     children: <Widget>[
                       materialShadowButton(
                           child: "C",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: "+/-",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: "%",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: "÷",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor)
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor)
                     ],
                   ),
                   Row(
@@ -293,29 +301,29 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                     children: <Widget>[
                       materialShadowButton(
                           child: 7,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                         child: 8,
-                        childColor: primaryIconColor,
-                        primaryShadowColor: primaryShadowColor,
-                        secondaryShadowColor: secondaryShadowColor,
-                        buttonBgColor: primaryButtonColor,
+                        childColor: themeData.primaryIconColor,
+                        primaryShadowColor: themeData.primaryShadowColor,
+                        secondaryShadowColor: themeData.secondaryShadowColor,
+                        buttonBgColor: themeData.primaryButtonColor,
                       ),
                       materialShadowButton(
                           child: 9,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: "x",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor)
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor)
                     ],
                   ),
                   Row(
@@ -323,28 +331,28 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                     children: <Widget>[
                       materialShadowButton(
                           child: 4,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: 5,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: 6,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: "-",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor)
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor)
                     ],
                   ),
                   Row(
@@ -352,28 +360,28 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                     children: <Widget>[
                       materialShadowButton(
                           child: 1,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: 2,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: 3,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: "+",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor)
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor)
                     ],
                   ),
                   Row(
@@ -381,28 +389,29 @@ class _MaterialCalculatorState extends State<MaterialCalculator> {
                     children: <Widget>[
                       materialShadowButton(
                           child: Icons.arrow_back,
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childId: "backSpace",
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: 0,
-                          childColor: primaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.primaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: ".",
-                          childColor: secondaryIconColor,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: secondaryShadowColor,
-                          buttonBgColor: primaryButtonColor),
+                          childColor: themeData.secondaryIconColor,
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.primaryButtonColor),
                       materialShadowButton(
                           child: "=",
                           childColor: Colors.white,
-                          primaryShadowColor: primaryShadowColor,
-                          secondaryShadowColor: Colors.blue[100],
-                          buttonBgColor: Colors.blue)
+                          primaryShadowColor: themeData.primaryShadowColor,
+                          secondaryShadowColor: themeData.secondaryShadowColor,
+                          buttonBgColor: themeData.secondaryIconColor)
                     ],
                   ),
                 ],
