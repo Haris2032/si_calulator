@@ -11,7 +11,6 @@ void main() {
       theme: ThemeData(
         primaryColor: Colors.red[400],
         accentColor: Colors.red[300],
-        primaryColorLight: Colors.white,
       ),
     ),
   );

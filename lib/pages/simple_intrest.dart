@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:si_calulator/data/data.dart';
-import 'package:si_calulator/widget/image_icon.dart';
 import 'package:si_calulator/widget/input_field.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 
 class SimpleIntrest extends StatefulWidget {
+  final themeData;
+
+  const SimpleIntrest({Key key, @required this.themeData}) : super(key: key);
   @override
   State<StatefulWidget> createState() {
     return _SimpleIntrestState();
@@ -59,6 +61,7 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: widget.themeData.primaryBgColor,
       appBar: AppBar(
         title: Text("EasyCal"),
       ),
@@ -69,7 +72,6 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
           height: MediaQuery.of(context).size.height * 0.8,
           child: ListView(
             children: <Widget>[
-              SimpleImage(),
               Padding(
                   padding: EdgeInsets.all(8.0),
                   child: InputField(
@@ -120,7 +122,7 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
                       Expanded(
                         child: RaisedButton(
                             color: Theme.of(context).accentColor,
-                            textColor: Theme.of(context).primaryColorLight,
+                            textColor: widget.themeData.primaryButtonColor,
                             child: Text(
                               'Calculate',
                               textScaleFactor: 1.3,
@@ -139,7 +141,7 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
                       ),
                       Expanded(
                           child: RaisedButton(
-                              color: Theme.of(context).primaryColorLight,
+                              color: widget.themeData.primaryButtonColor,
                               textColor: Theme.of(context).accentColor,
                               child: Text(
                                 'Reset',
@@ -155,8 +157,10 @@ class _SimpleIntrestState extends State<SimpleIntrest> {
               Padding(
                 padding: EdgeInsets.all(_minpadding * 2),
                 child: Text(
-                  this.display,
-                  style: Theme.of(context).textTheme.bodyText1,
+                  display,
+                  style: TextStyle(
+                      color: widget.themeData.primaryIconColor,
+                      fontWeight: FontWeight.w600),
                   textScaleFactor: 1.3,
                 ),
               )
