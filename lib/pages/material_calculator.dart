@@ -1,7 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:math_expressions/math_expressions.dart';
 import 'package:flutter/material.dart';
-import 'package:si_calulator/pages/simple_intrest.dart';
+// import 'package:si_calulator/pages/simple_intrest.dart';
 import '../data/data.dart';
 
 class MaterialCalculator extends StatefulWidget {
@@ -16,7 +16,6 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
   // for changing theme
   var themeData;
   bool themeChange;
-  GlobalKey<ScaffoldState> _globalKey;
   // for animating menu icon
   var menuIcon = Icons.menu;
   bool menuClicked = false;
@@ -28,9 +27,10 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
   double _containerHeight = 0;
   double _containerWidth = 0;
 
+  double iconSize = 3.5;
+
   @override
   void initState() {
-    _globalKey = GlobalKey<ScaffoldState>();
     animationController =
         AnimationController(vsync: this, duration: Duration(milliseconds: 250));
     menuTranslationAnimation =
@@ -58,7 +58,6 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
     final height = MediaQuery.of(context).size.height;
     final width = MediaQuery.of(context).size.width;
     return Scaffold(
-      key: _globalKey,
       backgroundColor: themeData.primaryBgColor,
       body: Stack(
         children: <Widget>[
@@ -118,7 +117,7 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
                             reverse: true,
                             child: Text(
                               answer != '' ? answer : '0',
-                              textScaleFactor: 3.5,
+                              textScaleFactor: iconSize,
                               style: TextStyle(
                                   color: themeData.secondaryIconColor),
                             ),
@@ -420,11 +419,13 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
           equation = "";
           answer = '';
           expression = '';
+          iconSize = 3.5;
         } else if (value == 'backSpace') {
           equation = equation.substring(0, equation.length - 1);
           expression = equation;
           if (equation == '') {
             answer = "";
+            iconSize = 3.5;
           }
         } else if (value == '=') {
           if (expression != '') {
@@ -438,7 +439,11 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
               value = exp.evaluate(EvaluationType.REAL, contextModel);
               value == value.round()
                   ? answer = value.round().toString()
-                  : answer = value.toString();
+                  : answer =
+                      double.parse((value).toStringAsFixed(8)).toString();
+              if (answer.length > 13){
+                iconSize = 2.0;
+              }
             } catch (e) {
               print(e);
               answer = 'ERROR';
@@ -462,15 +467,16 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
           } else {
             animationController.forward();
           }
+          print(value);
         } else if (value == 'settings') {
           print(value);
         } else if (value == 'about') {
           print(value);
         } else if (value == 'simple intrest') {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => SimpleIntrest(themeData: themeData)));
+          // Navigator.push(
+          //     context,
+          //     MaterialPageRoute(
+          //         builder: (context) => SimpleIntrest(themeData: themeData)));
         } else {
           equation += value.toString();
           expression = equation;
@@ -509,7 +515,7 @@ class _MaterialCalculatorState extends State<MaterialCalculator>
                   child.toString(),
                   style: TextStyle(
                       color: childColor,
-                      fontSize: 25.0,
+                      fontSize: iconSize,
                       fontWeight: FontWeight.bold),
                 )
               : Icon(
